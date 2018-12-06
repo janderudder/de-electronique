@@ -35,6 +35,14 @@ class SevenSegmentDisplay
     &mOffLevel, &mOffLevel
   };
 
+  // Memory to save and recall a displayed pattern
+  const int* mMemory[8] {
+    &mOffLevel, &mOffLevel,
+    &mOffLevel, &mOffLevel,
+    &mOffLevel, &mOffLevel,
+    &mOffLevel, &mOffLevel
+  };
+
   const uint8_t* mUsedValues = mPredefValues;
   
   using pin_t = int;
@@ -47,9 +55,9 @@ public:
 
   // Component's segments names
   enum Seg : int {
-    SEG_A, SEG_B, SEG_C, 
-    SEG_D, SEG_E, SEG_F,
-    SEG_G, SEG_P
+    Seg_A, Seg_B, Seg_C, 
+    Seg_D, Seg_E, Seg_F,
+    Seg_G, Seg_P
   };
 
   // Predefined displayable alphanumeric
@@ -80,13 +88,10 @@ public:
    *           Common anode or Common cathode.
    */
   explicit SevenSegmentDisplay(ComponentType);
-
   
   void initPin(Seg, pin_t);
 
-  
   void clear();
-
   
   void display(Predef);
   void display(Point);
@@ -94,15 +99,14 @@ public:
 
   void usePredefinedValues();
   void useCustomValues(const uint8_t*);
-
   
   void setSegment(Seg, State);
 
-  
   int maxPredefinedValue();
-
-  
   bool isValidPredefined(int);
+
+  void save();
+  void recall();
 
 
 private: /* Private methods */

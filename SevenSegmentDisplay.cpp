@@ -79,7 +79,7 @@ void SevenSegmentDisplay::display(Predef value)
 void SevenSegmentDisplay::display(Point pointState)
 {
   this->setSegment(
-    SEG_P,
+    Seg_P,
     pointState == Point::Off ? State::Off : State::On
   );
 }
@@ -128,6 +128,20 @@ bool SevenSegmentDisplay::isValidPredefined(int value)
     true : false;
 }
 
+
+
+void SevenSegmentDisplay::save()
+{
+  *mMemory = *mSegmentLevel;
+}
+
+
+
+void SevenSegmentDisplay::recall()
+{
+  *mSegmentLevel = *mMemory;
+  this->writeLevels();
+}
 
 
 //////////////////////////////////////////////////

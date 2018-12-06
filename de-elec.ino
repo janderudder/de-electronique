@@ -2,58 +2,87 @@
  * Un dé hexadécimal électronique avec
  * un afficheur 7 segments.
  */
+#include "DisplayModifier.hpp"
 #include "SevenSegmentDisplay.hpp"
-using SevSeg = SevenSegmentDisplay;
+#include "Clock.hpp"
 
-// Broche de lecture logique
-const int swPin = 10;
+using D7 = SevenSegmentDisplay;
+using ulong = unsigned long;
+using time_t = decltype(millis());
+
+const int ledPin = 10;    // Broche permettant la fonction lancé de dé
+const int swPin = 11;     // Broche lisant l'appui sur le bouton
 
 // Etat de la broche
-int swState = LOW;
-int swRead = LOW;
+int ledPinState = HIGH;
 
 
 // Afficheur 7 segments
-SevSeg sevSeg(SevSeg::COMCATHODE);
+D7 d7(D7::COMCATHODE);
+
+// Modifier
+DisplayModifier d7Mod(d7);
 
 
 
 void setup()
 {
   // Broche d'entrée pour le bouton poussoir
+  pinMode(ledPin, OUTPUT);
   pinMode(swPin, INPUT);
   
   // Connection des broches de l'arduino
   // aux broches de l'afficheur.
-  sevSeg.initPin(SevSeg::SEG_A, 7);
-  sevSeg.initPin(SevSeg::SEG_B, 8);
-  sevSeg.initPin(SevSeg::SEG_C, 6);
-  sevSeg.initPin(SevSeg::SEG_D, 4);
-  sevSeg.initPin(SevSeg::SEG_E, 2);
-  sevSeg.initPin(SevSeg::SEG_F, 5);
-  sevSeg.initPin(SevSeg::SEG_G, 3);
-  sevSeg.initPin(SevSeg::SEG_P, 9);
+  d7.initPin(D7::Seg_A, 7);
+  d7.initPin(D7::Seg_B, 8);
+  d7.initPin(D7::Seg_C, 6);
+  d7.initPin(D7::Seg_D, 4);
+  d7.initPin(D7::Seg_E, 2);
+  d7.initPin(D7::Seg_F, 5);
+  d7.initPin(D7::Seg_G, 3);
+  d7.initPin(D7::Seg_P, 9);
 
   // Initialisation d'un affichage éteint
-  sevSeg.clear();
+  d7.clear();
+  //d7.display(D7::Predef::Val_B);
 
-  Serial.begin(9600);
+  // Initialisation de la broche de jeu
+  digitalWrite(ledPin, ledPinState);
 
-  delay(1800);
-  Serial.println("Serial port is up...");
-  delay(500);
+  //Serial.begin(9600);
+  //delay(1800);
+  
+  randomSeed(analogRead(0));
 }
+
+
+// Clock
+Clock clock;
+time_t timer = 0;
+
+// Random
+int randomNumber;
 
 
 void loop()
 {
-  swRead = digitalRead(swPin);
+  auto loopTime = clock.update(millis()).getTime();
 
-  if (swRead != swState) {
-    swState = swRead;
-    Serial.print("State changed to ");
-    Serial.println(swState);
+  if (digitalRead(swPin) == HIGH) {
+    ledPinState = LOW;
+    digitalWrite(ledPin, ledPinState);
+    timer = 0;
+    randomNumber = random(0, 16);
   }
-
-  delay(100); 
+  
+  else {
+    timer += loopTime;
+    d7.display(randomNumber);
+    if (digitalRead(swPin) == LOW) {
+      ledPinState = HIGH;
+      digitalWrite(ledPin, ledPinState);
+    }
+  }
+  
+  delay(16);
 }
