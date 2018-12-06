@@ -4,7 +4,6 @@
  * avec un afficheur 7 segments.
  */
 #include "SevenSegmentDisplay.hpp"
-#include "Clock.hpp"
 
 using D7 = SevenSegmentDisplay;
 using time_t = decltype(millis());
